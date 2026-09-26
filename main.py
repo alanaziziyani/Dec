@@ -3,6 +3,8 @@ import os
 import json
 import subprocess
 import telebot
+import re
+from threading import Timer
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
@@ -20,13 +22,15 @@ SETTINGS_FILE = "settings.json"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 SUPPORTED_EXTENSIONS = ['.npvt', '.npvs', '.ehi', '.hat', '.nm', '.dark', '.slip']
+DEFAULT_NPV_KEY = "3RFV-8EKD-AVC5-ZBXA-GTWW-4BCR-70"
+media_groups = {}
 
 os.makedirs("configs", exist_ok=True)
 os.makedirs("output", exist_ok=True)
 
 # ==========================================
 # ۲. کلیدهای رمزنگاری 
-# (محتوای کامل کلیدها را از سورس قبلی خود جایگذاری کنید)
+# (محتوای کامل کلیدها را از سورس اصلی خود جایگذاری کنید)
 # ==========================================
 PRIVATE_KEY_B64 = "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"
 
@@ -76,7 +80,6 @@ CRYPT5_KEYS = {
     "ypmtavce": "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"
     
     }
-
 # ==========================================
 # ۳. مدیریت دیتابیس و آمار
 # ==========================================
@@ -91,7 +94,7 @@ def save_users(users_data):
 
 def load_settings():
     if not os.path.exists(SETTINGS_FILE):
-        return {"force_channels": ["@LabAlan"], "total_decrypts": 0}
+        return {"force_channels": ["@DrAlanCH", "@DRA_NET_FREE"], "total_decrypts": 0}
     with open(SETTINGS_FILE, "r") as f: return json.load(f)
 
 def save_settings(data):
@@ -104,7 +107,7 @@ def notify_owner_new_user(user):
         InlineKeyboardButton("🟢 آزاد کردن", callback_data=f"fast_unban_{user.id}")
     )
     username_text = f"@{user.username}" if user.username else "بدون یوزرنیم"
-    text = f"🆕 **کاربر جدید وارد ربات شد!**\n\n👤 نام کاربری: {username_text}\n🆔 شناسه: `{user.id}`"
+    text = f"🆕 **کاربر جدید وارد ربات شد** 🆕\n\n👤 نام کاربری: {username_text}\n🆔 شناسه: `{user.id}`"
     try:
         bot.send_message(OWNER_ID, text, reply_markup=markup, parse_mode="Markdown")
     except:
@@ -125,7 +128,6 @@ def check_and_register_user(user):
     return users[user_id]
 
 def add_decrypt_stat(user_id):
-    # آپدیت آمار کاربر
     users = load_users()
     user_id_str = str(user_id)
     if user_id_str in users:
@@ -133,7 +135,6 @@ def add_decrypt_stat(user_id):
         users[user_id_str]["decrypt_count"] += 1
         save_users(users)
     
-    # آپدیت آمار کل ربات
     settings = load_settings()
     settings.setdefault("total_decrypts", 0)
     settings["total_decrypts"] += 1
@@ -168,7 +169,7 @@ def check_join_callback(call):
         bot.answer_callback_query(call.id, "❌ شما هنوز در تمام کانال‌ها عضو نشده‌اید!", show_alert=True)
 
 # ==========================================
-# ۴. هسته رمزگشایی پایتون (فقط Decrypt)
+# ۴. هسته رمزگشایی پایتون
 # ==========================================
 def shuffle_blocks(text, block_size, order):
     if isinstance(text, str):
@@ -229,8 +230,20 @@ def decrypt_happ_link(link: str) -> str:
     else: return decrypt_rsa(payload, NATIVE_KEYS[mode])
 
 # ==========================================
-# ۵. هندلرهای ربات (فقط دیکریپت)
+# ۵. هندلرهای ربات (پردازش فایل‌ها و متن)
 # ==========================================
+def format_configs_text(extracted_links):
+    if not extracted_links:
+        return "هیچ لینک vless یا vmess استخراج نشد."
+    
+    formatted_text = ""
+    for idx, link in enumerate(extracted_links, 1):
+        protocol = "VLESS" if link.startswith("vless") else "VMESS" if link.startswith("vmess") else "TROJAN"
+        color = "🟦" if protocol == "VLESS" else "🟨" if protocol == "VMESS" else "🟥"
+        formatted_text += f"{idx:02d} · {color} **{protocol}**\n`{link}`\n\n"
+    
+    return formatted_text
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     user_data = check_and_register_user(message.from_user)
@@ -241,7 +254,7 @@ def send_welcome(message):
         bot.reply_to(message, "⛔️ برای استفاده از ربات در کانال‌های زیر عضو شوید:", reply_markup=force_join_markup())
         return
         
-    bot.reply_to(message, "👋 **به ربات دیکریپت خوش آمدید!**\n\nلطفا فایل کانفیگ قفل شده یا لینک `happ://` خود را بفرستید تا برایتان باز کنم.", parse_mode="Markdown")
+    bot.reply_to(message, "👋 **به ربات دیکریپت خوش آمدید!**\n\nلطفا فایل کانفیگ قفل شده (یا چندین فایل به صورت آلبوم) یا لینک `happ://` خود را بفرستید تا برایتان باز کنم.", parse_mode="Markdown")
 
 @bot.message_handler(content_types=['document'])
 def handle_docs(message):
@@ -253,49 +266,119 @@ def handle_docs(message):
         return
 
     file_name = message.document.file_name
-    
     if not any(file_name.lower().endswith(ext) for ext in SUPPORTED_EXTENSIONS):
         bot.reply_to(message, "⛔️ فرمت فایل پشتیبانی نمی‌شود!")
         return
 
-    try:
-        file_info = bot.get_file(message.document.file_id)
-        downloaded_file = bot.download_file(file_info.file_path)
-        input_path = os.path.join("configs", file_name)
-        with open(input_path, 'wb') as f: f.write(downloaded_file)
-            
-        msg = bot.reply_to(message, "🔓 در حال شکستن قفل...")
+    group_id = message.media_group_id
+    if group_id:
+        if group_id not in media_groups:
+            media_groups[group_id] = {'messages': [], 'timer': None, 'chat_id': message.chat.id, 'user': message.from_user}
+        media_groups[group_id]['messages'].append(message)
         
-        file_password = message.caption.strip() if message.caption else ""
+        if media_groups[group_id]['timer']:
+            media_groups[group_id]['timer'].cancel()
         
-        try:
-            subprocess.run(
-                ["./pantegnos", "-input", "configs", "-output", "output"],
-                input=f"{file_password}\n".encode('utf-8'),
-                timeout=15,
-                check=True
-            )
-        except subprocess.TimeoutExpired:
-            bot.edit_message_text("❌ عملیات متوقف شد. اگر فایل دارای پسورد یا HWID است، آن را در کپشن وارد کنید.", message.chat.id, msg.message_id)
-            if os.path.exists(input_path): os.remove(input_path)
-            return
+        timer = Timer(2.0, process_batch_files, args=[group_id])
+        media_groups[group_id]['timer'] = timer
+        timer.start()
+    else:
+        process_single_file(message)
 
-        out_path = os.path.join("output", file_name.rsplit('.', 1)[0] + ".txt")
-        if os.path.exists(out_path):
-            with open(out_path, 'rb') as doc: 
-                bot.send_document(message.chat.id, doc, caption=f"🔓 با موفقیت باز شد.\n{DEV_HANDLE}")
+def process_single_file(message):
+    process_files_logic([message], message.chat.id, message.from_user)
+
+def process_batch_files(group_id):
+    if group_id not in media_groups: return
+    data = media_groups.pop(group_id)
+    process_files_logic(data['messages'], data['chat_id'], data['user'])
+
+def process_files_logic(messages, chat_id, user):
+    msg_status = bot.send_message(chat_id, f"⚙️ در حال پردازش {len(messages)} فایل...")
+    
+    combined_json_data = []
+    all_extracted_links = []
+    success_count = 0
+
+    for msg in messages:
+        file_name = msg.document.file_name
+        file_info = bot.get_file(msg.document.file_id)
+        downloaded_file = bot.download_file(file_info.file_path)
+        
+        input_path = os.path.join("configs", f"{msg.message_id}_{file_name}")
+        with open(input_path, 'wb') as f: 
+            f.write(downloaded_file)
+        
+        keys_to_try = []
+        caption_key = msg.caption.strip() if msg.caption else ""
+        if caption_key: keys_to_try.append(caption_key)
+        keys_to_try.append(DEFAULT_NPV_KEY)
+        keys_to_try.append("") 
+        
+        out_path = os.path.join("output", f"{msg.message_id}_out.txt")
+        decrypted_successfully = False
+
+        for key in keys_to_try:
+            try:
+                subprocess.run(
+                    ["./pantegnos", "-input", input_path, "-output", out_path],
+                    input=f"{key}\n".encode('utf-8'),
+                    timeout=10,
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                if os.path.exists(out_path):
+                    decrypted_successfully = True
+                    break 
+            except:
+                pass
+        
+        if decrypted_successfully:
+            success_count += 1
+            with open(out_path, 'r', encoding='utf-8') as f:
+                content = f.read()
             
-            # ثبت آمار دیکریپت موفق
-            add_decrypt_stat(message.from_user.id)
+            links = re.findall(r'(vless://\S+|vmess://\S+|trojan://\S+)', content)
+            all_extracted_links.extend(links)
             
+            try:
+                parsed_json = json.loads(content)
+                if isinstance(parsed_json, list):
+                    combined_json_data.extend(parsed_json)
+                else:
+                    combined_json_data.append(parsed_json)
+            except json.JSONDecodeError:
+                combined_json_data.append({"raw_content": content})
+
             os.remove(out_path)
-            bot.delete_message(message.chat.id, msg.message_id)
-        else:
-            bot.edit_message_text("❌ دیکریپت ناموفق! فایل نامعتبر است یا پسورد/HWID نیاز دارد.", message.chat.id, msg.message_id)
-            
+        
         if os.path.exists(input_path): os.remove(input_path)
-    except Exception as e:
-        bot.reply_to(message, f"⚠️ خطا در پردازش فایل: {e}")
+
+    bot.delete_message(chat_id, msg_status.message_id)
+
+    if success_count == 0:
+        bot.send_message(chat_id, "❌ دیکریپت ناموفق بود! تمامی کلیدها (حتی کلید پیش‌فرض) تست شدند و فایل باز نشد.")
+        return
+
+    add_decrypt_stat(user.id) 
+    
+    formatted_message = format_configs_text(all_extracted_links)
+    
+    if len(formatted_message) > 4000:
+        formatted_message = formatted_message[:3900] + "\n\n⚠️ تعداد لینک‌ها بسیار زیاد است. لیست کامل را از فایل زیر دریافت کنید."
+    
+    bot.send_message(chat_id, f"✅ **تعداد {success_count} فایل با موفقیت باز شد!**\n\n{formatted_message}\n{DEV_HANDLE}", parse_mode="Markdown")
+
+    if combined_json_data:
+        final_json_path = os.path.join("output", f"Combined_Configs_{user.id}.json")
+        with open(final_json_path, 'w', encoding='utf-8') as f:
+            json.dump(combined_json_data, f, indent=4, ensure_ascii=False)
+        
+        with open(final_json_path, 'rb') as doc:
+            bot.send_document(chat_id, doc, caption="📂 فایل تجمیع‌شده‌ی تمامی کانفیگ‌ها (JSON)")
+        
+        os.remove(final_json_path)
 
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
@@ -313,9 +396,7 @@ def handle_text(message):
         try: 
             decrypted_data = decrypt_happ_link(text)
             bot.edit_message_text(f"✅ **نتیجه دیکریپت:**\n\n`{decrypted_data}`\n\n{DEV_HANDLE}", chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
-            
-            # ثبت آمار دیکریپت موفق
-            add_decrypt_stat(message.from_user.id)
+            add_decrypt_stat(message.fromuser.id)
             
         except Exception as e: 
             bot.edit_message_text(f"❌ خطا در باز کردن لینک: {e}", chat_id=message.chat.id, message_id=msg.message_id)
@@ -339,7 +420,6 @@ def admin_panel(message):
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("fast_"))
 def fast_action_callbacks(call):
-    # هندل کردن دکمه‌های بن و آنبن سریع از پیام اطلاع‌رسانی
     action = call.data.split("_")[1]
     target_id = call.data.split("_")[2]
     users = load_users()
@@ -353,7 +433,6 @@ def fast_action_callbacks(call):
             bot.answer_callback_query(call.id, "🟢 کاربر آزاد شد.", show_alert=True)
         save_users(users)
         
-        # آپدیت کردن پیام تا دکمه‌ها وضعیت جدید را نشان دهند
         status_emoji = "🔴 مسدود شده" if users[target_id]['status'] == 'blocked' else "🟢 فعال"
         bot.edit_message_text(f"{call.message.text}\n\nوضعیت فعلی: {status_emoji}", chat_id=call.message.chat.id, message_id=call.message.message_id)
 
@@ -379,7 +458,7 @@ def admin_callbacks(call):
         msg = bot.send_message(call.message.chat.id, "✉️ آیدی عددی کاربر مورد نظر را ارسال کنید:")
         bot.register_next_step_handler(msg, lambda m: bot.register_next_step_handler(bot.reply_to(m, "📝 متن پیام شخصی:"), lambda m2: bot.send_message(m.text, f"🔔 **پیام مدیریت:**\n\n{m2.text}", parse_mode="Markdown")))
     elif action == "admin_set_channels":
-        msg = bot.send_message(call.message.chat.id, "⚙️ آیدی چنل‌ها را با `@` وارد کنید (با فاصله):\n(لغو جوین: `none`)")
+        msg = bot.send_message(call.message.chat.id, "⚙️ آیدی چنل‌های جدید را با `@` وارد کنید (با فاصله از هم جدا کنید):\n(برای لغو تمام قفل‌ها، کلمه `none` را بفرستید)")
         bot.register_next_step_handler(msg, process_set_channels)
     
     elif action in ["admin_set_user", "admin_toggle_block"]:
@@ -414,10 +493,18 @@ def process_role_action(message, action):
 def process_set_channels(message):
     text = message.text.strip()
     settings = load_settings()
-    if text.lower() == "none": settings["force_channels"] = []
-    else: settings["force_channels"] = [ch for ch in text.split() if ch.startswith("@")]
+    if text.lower() == "none": 
+        settings["force_channels"] = []
+    else: 
+        settings["force_channels"] = [ch for ch in text.split() if ch.startswith("@")]
+    
     save_settings(settings)
-    bot.reply_to(message, f"✅ کانال‌های اجباری آپدیت شدند.")
+    
+    if not settings["force_channels"]:
+        bot.reply_to(message, "✅ قفل جوین اجباری به طور کامل غیرفعال شد.")
+    else:
+        joined_list = "\n".join(settings["force_channels"])
+        bot.reply_to(message, f"✅ کانال‌های اجباری جدید ذخیره شدند:\n{joined_list}")
 
 if __name__ == '__main__':
     print("Bot is running...")
