@@ -80,6 +80,7 @@ CRYPT5_KEYS = {
     "ypmtavce": "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"
     
     }
+
 # ==========================================
 # ۳. مدیریت دیتابیس و آمار
 # ==========================================
@@ -229,9 +230,6 @@ def decrypt_happ_link(link: str) -> str:
     if mode == 4: return b64_decode_bytes(m4842j(decrypt_crypt5_middle(m4831f(payload)))).decode('utf-8', errors='ignore')
     else: return decrypt_rsa(payload, NATIVE_KEYS[mode])
 
-# ==========================================
-# ۵. هندلرهای ربات (پردازش فایل‌ها و متن)
-# ==========================================
 def format_configs_text(extracted_links):
     if not extracted_links:
         return "هیچ لینک vless یا vmess استخراج نشد."
@@ -244,6 +242,11 @@ def format_configs_text(extracted_links):
     
     return formatted_text
 
+# ==========================================
+# ۵. هندلرهای ربات (به ترتیب اولویت صحیح)
+# ==========================================
+
+# اولویت اول: دستورات اصلی
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     user_data = check_and_register_user(message.from_user)
@@ -256,6 +259,19 @@ def send_welcome(message):
         
     bot.reply_to(message, "👋 **به ربات دیکریپت خوش آمدید!**\n\nلطفا فایل کانفیگ قفل شده (یا چندین فایل به صورت آلبوم) یا لینک `happ://` خود را بفرستید تا برایتان باز کنم.", parse_mode="Markdown")
 
+@bot.message_handler(commands=['admin'])
+def admin_panel(message):
+    users = load_users()
+    if str(message.from_user.id) not in users or users[str(message.from_user.id)]['role'] not in ['owner', 'admin']: return
+
+    markup = InlineKeyboardMarkup()
+    markup.row(InlineKeyboardButton("📣 پیام همگانی", callback_data="admin_broadcast"), InlineKeyboardButton("✉️ پیام به کاربر", callback_data="admin_dm"))
+    markup.row(InlineKeyboardButton("⚙️ تنظیم چنل‌های اجباری", callback_data="admin_set_channels"))
+    markup.row(InlineKeyboardButton("🔴 بلاک/آنبلاک", callback_data="admin_toggle_block"), InlineKeyboardButton("👤 تنزل ادمین", callback_data="admin_set_user"))
+    markup.row(InlineKeyboardButton("📋 آمار کل", callback_data="admin_stats"), InlineKeyboardButton("📊 آمار یک کاربر", callback_data="admin_user_stats"))
+    bot.send_message(message.chat.id, "⚙️ **پنل مدیریت ربات**", reply_markup=markup, parse_mode="Markdown")
+
+# اولویت دوم: پردازش فایل‌ها
 @bot.message_handler(content_types=['document'])
 def handle_docs(message):
     user_data = check_and_register_user(message.from_user)
@@ -380,6 +396,7 @@ def process_files_logic(messages, chat_id, user):
         
         os.remove(final_json_path)
 
+# اولویت آخر: دریافت متن‌های متفرقه (مثل لینک‌های happ)
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     user_data = check_and_register_user(message.from_user)
@@ -396,7 +413,7 @@ def handle_text(message):
         try: 
             decrypted_data = decrypt_happ_link(text)
             bot.edit_message_text(f"✅ **نتیجه دیکریپت:**\n\n`{decrypted_data}`\n\n{DEV_HANDLE}", chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
-            add_decrypt_stat(message.fromuser.id)
+            add_decrypt_stat(message.from_user.id)
             
         except Exception as e: 
             bot.edit_message_text(f"❌ خطا در باز کردن لینک: {e}", chat_id=message.chat.id, message_id=msg.message_id)
@@ -404,20 +421,8 @@ def handle_text(message):
         bot.reply_to(message, "لطفا فایل قفل شده یا لینک happ:// ارسال کنید.")
 
 # ==========================================
-# ۶. پنل مدیریت 
+# ۶. مدیریت کال‌بک‌های پنل ادمین
 # ==========================================
-@bot.message_handler(commands=['admin'])
-def admin_panel(message):
-    users = load_users()
-    if str(message.from_user.id) not in users or users[str(message.from_user.id)]['role'] not in ['owner', 'admin']: return
-
-    markup = InlineKeyboardMarkup()
-    markup.row(InlineKeyboardButton("📣 پیام همگانی", callback_data="admin_broadcast"), InlineKeyboardButton("✉️ پیام به کاربر", callback_data="admin_dm"))
-    markup.row(InlineKeyboardButton("⚙️ تنظیم چنل‌های اجباری", callback_data="admin_set_channels"))
-    markup.row(InlineKeyboardButton("🔴 بلاک/آنبلاک", callback_data="admin_toggle_block"), InlineKeyboardButton("👤 تنزل ادمین", callback_data="admin_set_user"))
-    markup.row(InlineKeyboardButton("📋 آمار کل", callback_data="admin_stats"), InlineKeyboardButton("📊 آمار یک کاربر", callback_data="admin_user_stats"))
-    bot.send_message(message.chat.id, "⚙️ **پنل مدیریت ربات**", reply_markup=markup, parse_mode="Markdown")
-
 @bot.callback_query_handler(func=lambda call: call.data.startswith("fast_"))
 def fast_action_callbacks(call):
     action = call.data.split("_")[1]
