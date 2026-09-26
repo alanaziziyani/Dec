@@ -2,6 +2,7 @@ import base64
 import os
 import json
 import subprocess
+import shutil
 import telebot
 import re
 from threading import Timer
@@ -308,7 +309,6 @@ def process_batch_files(group_id):
     if group_id not in media_groups: return
     data = media_groups.pop(group_id)
     process_files_logic(data['messages'], data['chat_id'], data['user'])
-
 def process_files_logic(messages, chat_id, user):
     msg_status = bot.send_message(chat_id, f"⚙️ در حال پردازش {len(messages)} فایل...")
     
@@ -321,43 +321,61 @@ def process_files_logic(messages, chat_id, user):
         file_info = bot.get_file(msg.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
         
-        input_path = os.path.join("configs", f"{msg.message_id}_{file_name}")
+        # ساخت پوشه‌های اختصاصی و موقت برای این فایل تا pantegnos ارور ندهد
+        unique_id = str(msg.message_id)
+        in_dir = f"configs_{unique_id}"
+        out_dir = f"output_{unique_id}"
+        os.makedirs(in_dir, exist_ok=True)
+        os.makedirs(out_dir, exist_ok=True)
+        
+        input_path = os.path.join(in_dir, file_name)
         with open(input_path, 'wb') as f: 
             f.write(downloaded_file)
         
+        # فیلتر هوشمند کپشن: فقط اگر کپشن کوتاه (کمتر از ۵۰ حرف) و یک خطی بود به عنوان پسورد تست شود
         keys_to_try = []
-        caption_key = msg.caption.strip() if msg.caption else ""
-        if caption_key: keys_to_try.append(caption_key)
-        keys_to_try.append(DEFAULT_NPV_KEY)
-        keys_to_try.append("") 
+        if msg.caption:
+            cap = msg.caption.strip()
+            if len(cap) < 50 and "\n" not in cap:
+                keys_to_try.append(cap)
         
-        out_path = os.path.join("output", f"{msg.message_id}_out.txt")
+        keys_to_try.append(DEFAULT_NPV_KEY) # تست کلید اصلی نپسترنت
+        keys_to_try.append("") # تست بدون کلید
+        
         decrypted_successfully = False
+        final_out_path = ""
 
         for key in keys_to_try:
             try:
+                # اجرای pantegnos با آدرس‌دهی پوشه‌ها (به جای فایل)
                 subprocess.run(
-                    ["./pantegnos", "-input", input_path, "-output", out_path],
+                    ["./pantegnos", "-input", in_dir, "-output", out_dir],
                     input=f"{key}\n".encode('utf-8'),
-                    timeout=10,
+                    timeout=15,
                     check=True,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL
                 )
-                if os.path.exists(out_path):
+                
+                # بررسی اینکه آیا فایلی در پوشه خروجی ایجاد شده است یا خیر
+                out_files = os.listdir(out_dir)
+                if out_files:
                     decrypted_successfully = True
+                    final_out_path = os.path.join(out_dir, out_files[0])
                     break 
             except:
                 pass
         
-        if decrypted_successfully:
+        if decrypted_successfully and final_out_path:
             success_count += 1
-            with open(out_path, 'r', encoding='utf-8') as f:
+            with open(final_out_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
+            # استخراج لینک‌های خام
             links = re.findall(r'(vless://\S+|vmess://\S+|trojan://\S+)', content)
             all_extracted_links.extend(links)
             
+            # ترکیب جیسون‌ها
             try:
                 parsed_json = json.loads(content)
                 if isinstance(parsed_json, list):
@@ -367,9 +385,12 @@ def process_files_logic(messages, chat_id, user):
             except json.JSONDecodeError:
                 combined_json_data.append({"raw_content": content})
 
-            os.remove(out_path)
-        
-        if os.path.exists(input_path): os.remove(input_path)
+        # پاکسازی پوشه‌های موقت پس از اتمام کار روی این فایل
+        try:
+            shutil.rmtree(in_dir)
+            shutil.rmtree(out_dir)
+        except:
+            pass
 
     bot.delete_message(chat_id, msg_status.message_id)
 
@@ -380,22 +401,21 @@ def process_files_logic(messages, chat_id, user):
     add_decrypt_stat(user.id) 
     
     formatted_message = format_configs_text(all_extracted_links)
-    
     if len(formatted_message) > 4000:
         formatted_message = formatted_message[:3900] + "\n\n⚠️ تعداد لینک‌ها بسیار زیاد است. لیست کامل را از فایل زیر دریافت کنید."
     
     bot.send_message(chat_id, f"✅ **تعداد {success_count} فایل با موفقیت باز شد!**\n\n{formatted_message}\n{DEV_HANDLE}", parse_mode="Markdown")
 
     if combined_json_data:
-        final_json_path = os.path.join("output", f"Combined_Configs_{user.id}.json")
+        final_json_path = f"Combined_Configs_{user.id}.json"
         with open(final_json_path, 'w', encoding='utf-8') as f:
             json.dump(combined_json_data, f, indent=4, ensure_ascii=False)
         
         with open(final_json_path, 'rb') as doc:
             bot.send_document(chat_id, doc, caption="📂 فایل تجمیع‌شده‌ی تمامی کانفیگ‌ها (JSON)")
         
-        os.remove(final_json_path)
-
+        if os.path.exists(final_json_path):
+            os.remove(final_json_path)
 # اولویت آخر: دریافت متن‌های متفرقه (مثل لینک‌های happ)
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
