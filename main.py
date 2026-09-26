@@ -91,7 +91,7 @@ def save_users(users_data):
 
 def load_settings():
     if not os.path.exists(SETTINGS_FILE):
-        return {"force_channels": ["@DrAlanCH", "@DRA_NET_FREE"], "total_decrypts": 0}
+        return {"force_channels": ["@LabAlan"], "total_decrypts": 0}
     with open(SETTINGS_FILE, "r") as f: return json.load(f)
 
 def save_settings(data):
