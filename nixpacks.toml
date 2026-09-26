@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["python3", "go"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[phases.build]
+cmds = ["go build -o pantegnos ./cmd/pantegnos"]
+
+[start]
+cmd = "python main.py"
