@@ -2,9 +2,9 @@ import base64
 import os
 import json
 import subprocess
-import shutil
 import telebot
 import re
+import shutil
 from threading import Timer
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -16,7 +16,8 @@ from cryptography.hazmat.primitives.serialization import load_der_private_key
 # ==========================================
 BOT_TOKEN = "8991507151:AAGM-ObRdzwaiWTCPgcidcTSIaC2GXw_pLg"
 OWNER_ID = 6998163617
-DEV_HANDLE = "@DR_A_88"
+# اضافه شدن \u200E برای چپ‌چین کردن اجباری و \_ برای جلوگیری از ایتالیک شدن در مارک‌داون
+DEV_HANDLE = "\u200E@DR\_A\_88"
 
 DB_FILE = "users.json"
 SETTINGS_FILE = "settings.json"
@@ -233,21 +234,28 @@ def decrypt_happ_link(link: str) -> str:
 
 def format_configs_text(extracted_links):
     if not extracted_links:
-        return "هیچ لینک vless یا vmess استخراج نشد."
+        return "📌 **لینک مستقیمی یافت نشد!**\nاحتمالاً این فایل به صورت کاستوم (JSON خام) ساخته شده است. می‌توانید از فایل JSON ارسال شده در پایین استفاده کنید."
+    
+    # حذف لینک‌های تکراری
+    extracted_links = list(dict.fromkeys(extracted_links))
     
     formatted_text = ""
     for idx, link in enumerate(extracted_links, 1):
-        protocol = "VLESS" if link.startswith("vless") else "VMESS" if link.startswith("vmess") else "TROJAN"
-        color = "🟦" if protocol == "VLESS" else "🟨" if protocol == "VMESS" else "🟥"
+        low_link = link.lower()
+        if low_link.startswith("vless"): protocol, color = "VLESS", "🟦"
+        elif low_link.startswith("vmess"): protocol, color = "VMESS", "🟨"
+        elif low_link.startswith("trojan"): protocol, color = "TROJAN", "🟥"
+        elif low_link.startswith("ss"): protocol, color = "SHADOWSOCKS", "🟪"
+        else: protocol, color = "CONFIG", "🟩"
+        
         formatted_text += f"{idx:02d} · {color} **{protocol}**\n`{link}`\n\n"
     
     return formatted_text
 
 # ==========================================
-# ۵. هندلرهای ربات (به ترتیب اولویت صحیح)
+# ۵. هندلرهای ربات
 # ==========================================
 
-# اولویت اول: دستورات اصلی
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     user_data = check_and_register_user(message.from_user)
@@ -272,7 +280,6 @@ def admin_panel(message):
     markup.row(InlineKeyboardButton("📋 آمار کل", callback_data="admin_stats"), InlineKeyboardButton("📊 آمار یک کاربر", callback_data="admin_user_stats"))
     bot.send_message(message.chat.id, "⚙️ **پنل مدیریت ربات**", reply_markup=markup, parse_mode="Markdown")
 
-# اولویت دوم: پردازش فایل‌ها
 @bot.message_handler(content_types=['document'])
 def handle_docs(message):
     user_data = check_and_register_user(message.from_user)
@@ -309,6 +316,7 @@ def process_batch_files(group_id):
     if group_id not in media_groups: return
     data = media_groups.pop(group_id)
     process_files_logic(data['messages'], data['chat_id'], data['user'])
+
 def process_files_logic(messages, chat_id, user):
     msg_status = bot.send_message(chat_id, f"⚙️ در حال پردازش {len(messages)} فایل...")
     
@@ -321,7 +329,6 @@ def process_files_logic(messages, chat_id, user):
         file_info = bot.get_file(msg.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
         
-        # ساخت پوشه‌های اختصاصی و موقت برای این فایل تا pantegnos ارور ندهد
         unique_id = str(msg.message_id)
         in_dir = f"configs_{unique_id}"
         out_dir = f"output_{unique_id}"
@@ -332,22 +339,20 @@ def process_files_logic(messages, chat_id, user):
         with open(input_path, 'wb') as f: 
             f.write(downloaded_file)
         
-        # فیلتر هوشمند کپشن: فقط اگر کپشن کوتاه (کمتر از ۵۰ حرف) و یک خطی بود به عنوان پسورد تست شود
         keys_to_try = []
         if msg.caption:
             cap = msg.caption.strip()
             if len(cap) < 50 and "\n" not in cap:
                 keys_to_try.append(cap)
         
-        keys_to_try.append(DEFAULT_NPV_KEY) # تست کلید اصلی نپسترنت
-        keys_to_try.append("") # تست بدون کلید
+        keys_to_try.append(DEFAULT_NPV_KEY)
+        keys_to_try.append("") 
         
         decrypted_successfully = False
         final_out_path = ""
 
         for key in keys_to_try:
             try:
-                # اجرای pantegnos با آدرس‌دهی پوشه‌ها (به جای فایل)
                 subprocess.run(
                     ["./pantegnos", "-input", in_dir, "-output", out_dir],
                     input=f"{key}\n".encode('utf-8'),
@@ -357,7 +362,6 @@ def process_files_logic(messages, chat_id, user):
                     stderr=subprocess.DEVNULL
                 )
                 
-                # بررسی اینکه آیا فایلی در پوشه خروجی ایجاد شده است یا خیر
                 out_files = os.listdir(out_dir)
                 if out_files:
                     decrypted_successfully = True
@@ -371,11 +375,11 @@ def process_files_logic(messages, chat_id, user):
             with open(final_out_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             
-            # استخراج لینک‌های خام
-            links = re.findall(r'(vless://\S+|vmess://\S+|trojan://\S+)', content)
-            all_extracted_links.extend(links)
+            # نسخه بهینه شده Regex برای پیدا کردن لینک‌هایی که درون کوتیشن یا JSON مخفی شده‌اند
+            links = re.findall(r'((?:vless|vmess|trojan|ss|hysteria2?|tuic)://[^\s"\'<>]+)', content, re.IGNORECASE)
+            clean_links = [link.rstrip(',\\]}') for link in links]
+            all_extracted_links.extend(clean_links)
             
-            # ترکیب جیسون‌ها
             try:
                 parsed_json = json.loads(content)
                 if isinstance(parsed_json, list):
@@ -385,7 +389,6 @@ def process_files_logic(messages, chat_id, user):
             except json.JSONDecodeError:
                 combined_json_data.append({"raw_content": content})
 
-        # پاکسازی پوشه‌های موقت پس از اتمام کار روی این فایل
         try:
             shutil.rmtree(in_dir)
             shutil.rmtree(out_dir)
@@ -402,9 +405,10 @@ def process_files_logic(messages, chat_id, user):
     
     formatted_message = format_configs_text(all_extracted_links)
     if len(formatted_message) > 4000:
-        formatted_message = formatted_message[:3900] + "\n\n⚠️ تعداد لینک‌ها بسیار زیاد است. لیست کامل را از فایل زیر دریافت کنید."
+        formatted_message = formatted_message[:3900] + "\n\n⚠️ تعداد لینک‌ها بسیار زیاد است. لیست کامل در فایل قرار دارد."
     
-    bot.send_message(chat_id, f"✅ **تعداد {success_count} فایل با موفقیت باز شد!**\n\n{formatted_message}\n{DEV_HANDLE}", parse_mode="Markdown")
+    final_msg_text = f"✅ **تعداد {success_count} فایل با موفقیت باز شد!**\n\n{formatted_message}\n\n💎 {DEV_HANDLE}"
+    bot.send_message(chat_id, final_msg_text, parse_mode="Markdown")
 
     if combined_json_data:
         final_json_path = f"Combined_Configs_{user.id}.json"
@@ -416,7 +420,7 @@ def process_files_logic(messages, chat_id, user):
         
         if os.path.exists(final_json_path):
             os.remove(final_json_path)
-# اولویت آخر: دریافت متن‌های متفرقه (مثل لینک‌های happ)
+
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     user_data = check_and_register_user(message.from_user)
@@ -432,7 +436,7 @@ def handle_text(message):
         msg = bot.reply_to(message, "🔓 در حال استخراج کانفیگ از لینک...")
         try: 
             decrypted_data = decrypt_happ_link(text)
-            bot.edit_message_text(f"✅ **نتیجه دیکریپت:**\n\n`{decrypted_data}`\n\n{DEV_HANDLE}", chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
+            bot.edit_message_text(f"✅ **نتیجه دیکریپت:**\n\n`{decrypted_data}`\n\n💎 {DEV_HANDLE}", chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
             add_decrypt_stat(message.from_user.id)
             
         except Exception as e: 
