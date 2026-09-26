@@ -1,5 +1,5 @@
-# مرحله اول: نصب Go و کامپایل کردن فایل اجرایی
-FROM golang:1.21 AS builder
+# مرحله اول: نصب Go نسخه 1.26 و کامپایل کردن فایل اجرایی
+FROM golang:1.26 AS builder
 WORKDIR /app
 COPY . .
 RUN go build -ldflags="-w -s" -o pantegnos ./cmd/pantegnos
