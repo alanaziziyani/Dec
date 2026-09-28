@@ -31,7 +31,7 @@ os.makedirs("configs", exist_ok=True)
 os.makedirs("output", exist_ok=True)
 
 # ==========================================
-# ۲. کلیدهای رمزنگاری
+# ۲. کلیدهای رمزنگاری — اینجا کلیدها را از سورس اصلی بگذار
 # ==========================================
 PRIVATE_KEY_B64 = "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"
 
@@ -94,7 +94,6 @@ def _tnl_ror8(x, n):
     return ((x >> n) | (x << (8 - n))) & 0xFF
 
 def decrypt_tnl_bytes(file_bytes: bytes) -> str:
-    """Decrypt a .tnl file. Returns the plaintext XML string."""
     s = file_bytes.strip()
     if s.startswith(b'\xef\xbb\xbf'):
         s = s[3:]
@@ -123,7 +122,6 @@ def decrypt_tnl_bytes(file_bytes: bytes) -> str:
     return out.decode('utf-8', errors='replace')
 
 def parse_tnl_xml(xml_text: str) -> dict:
-    """Parse OpenTunnel <properties> XML into a key->value dict."""
     entries = {}
     for m in re.finditer(
         r'<entry\s+key="([^"]+)"\s*(?:/>|>(.*?)</entry>)',
@@ -133,7 +131,6 @@ def parse_tnl_xml(xml_text: str) -> dict:
     return entries
 
 def build_tnl_socks_uri(entries: dict) -> str:
-    """از v2rayjson داخل کانفیگ، لینک socks:// نهایی را می‌سازد."""
     try:
         v2 = json.loads(entries.get("v2rayjson", "") or "{}")
     except Exception:
@@ -159,7 +156,6 @@ def build_tnl_socks_uri(entries: dict) -> str:
     return f"socks://{address}:{port}?type={network}#{tag}"
 
 def format_tnl_info(entries: dict) -> str:
-    """اطلاعات SSH و خلاصه کانفیگ TNL را مرتب می‌کند."""
     lines = []
     remarks = entries.get("remarks", "").strip()
     if remarks:
@@ -180,7 +176,6 @@ def format_tnl_info(entries: dict) -> str:
     return "\n".join(lines) if lines else ""
 
 def extract_tnl_links(entries: dict) -> list:
-    """لینک‌های قابل استفاده از کانفیگ TNL را جمع می‌کند."""
     links = []
     socks_uri = build_tnl_socks_uri(entries)
     if socks_uri:
@@ -207,14 +202,31 @@ def escape_md(text):
     return text
 
 def extract_json_config(text):
-    """اولین شیء JSON که شامل کلید 'configs' است را از داخل متن استخراج می‌کند."""
+    """اولین شیء یا لیست JSON که شامل 'configs' یا 'v2rayProfile' است را از داخل متن استخراج می‌کند."""
+    # اول دنبال "configs" بگرد (دیکشنری با کلید configs)
     idx = text.find('"configs"')
-    if idx == -1:
-        return None
-    start = text.rfind('{', 0, idx)
-    if start == -1:
+    key_marker = None
+    if idx != -1:
+        start = text.rfind('{', 0, idx)
+        if start != -1:
+            key_marker = ('{', start, '}')
+    if key_marker is None:
+        # دنبال "v2rayProfile" بگرد (لیست کانفیگ‌ها)
+        idx = text.find('"v2rayProfile"')
+        if idx == -1:
+            return None
+        # نزدیک‌ترین [ قبل از آن یا { قبل از آن
+        bracket = text.rfind('[', 0, idx)
+        brace = text.rfind('{', 0, idx)
+        if bracket != -1 and (brace == -1 or bracket > brace):
+            key_marker = ('[', bracket, ']')
+        elif brace != -1:
+            key_marker = ('{', brace, '}')
+
+    if key_marker is None:
         return None
 
+    open_ch, start, close_ch = key_marker
     depth = 0
     in_str = False
     esc = False
@@ -231,9 +243,9 @@ def extract_json_config(text):
             continue
         if in_str:
             continue
-        if c == '{':
+        if c == open_ch:
             depth += 1
-        elif c == '}':
+        elif c == close_ch:
             depth -= 1
             if depth == 0:
                 try:
@@ -242,61 +254,118 @@ def extract_json_config(text):
                     return None
     return None
 
+
+def convert_npvs_profile_to_link(profile, fallback_name="config"):
+    """یک v2rayProfile را به URI قابل استفاده تبدیل می‌کند."""
+    ctype = profile.get("configType")
+    server = profile.get("server", "")
+    port = str(profile.get("serverPort", ""))
+    remarks = profile.get("remarks") or fallback_name or "config"
+    if not server or not port:
+        return None
+    remark_enc = urlquote(remarks, safe='')
+
+    # ---- Shadowsocks (configType 3) ----
+    if ctype == 3:
+        method = profile.get("method", "")
+        password = profile.get("password", "")
+        userinfo = base64.urlsafe_b64encode(
+            f"{method}:{password}".encode()
+        ).decode().rstrip("=")
+        return f"ss://{userinfo}@{server}:{port}#{remark_enc}"
+
+    # ---- VLESS + REALITY (configType 5) ----
+    if ctype == 5:
+        uuid = profile.get("password", "")
+        flow = profile.get("flow", "")
+        network = profile.get("network", "tcp")
+        security = profile.get("security", "none")
+        sni = profile.get("sni", "")
+        fp = profile.get("fingerPrint", "")
+        pubkey = profile.get("publicKey", "")
+        sid = profile.get("shortId", "")
+        header = profile.get("headerType", "")
+        insecure = profile.get("insecure", False)
+
+        params = []
+        if network:  params.append(f"type={network}")
+        if security: params.append(f"security={security}")
+        if sni:      params.append(f"sni={urlquote(sni, safe='')}")
+        if fp:       params.append(f"fp={fp}")
+        if flow:     params.append(f"flow={urlquote(flow, safe='')}")
+        if pubkey:   params.append(f"pbk={urlquote(pubkey, safe='')}")
+        if sid:      params.append(f"sid={urlquote(sid, safe='')}")
+        if header and header != "none":
+            params.append(f"headerType={header}")
+        if insecure: params.append("allowInsecure=1")
+        params_str = "&".join(params)
+        return f"vless://{uuid}@{server}:{port}?{params_str}#{remark_enc}"
+
+    # ---- Trojan (configType 6) ----
+    if ctype == 6:
+        password = profile.get("password", "")
+        network = profile.get("network", "tcp")
+        host = profile.get("host", "")
+        path = profile.get("path", "")
+        sni = profile.get("sni", "")
+        security = profile.get("security", "")
+        alpn = profile.get("alpn", "")
+        fp = profile.get("fingerPrint", "")
+        insecure = profile.get("insecure", False)
+
+        params = []
+        if network:  params.append(f"type={network}")
+        if security: params.append(f"security={security}")
+        if sni:      params.append(f"sni={urlquote(sni, safe='')}")
+        if host:     params.append(f"host={urlquote(host, safe='')}")
+        if path:     params.append(f"path={urlquote(path, safe='')}")
+        if alpn:     params.append(f"alpn={urlquote(alpn, safe='')}")
+        if fp:       params.append(f"fp={fp}")
+        if insecure: params.append("allowInsecure=1")
+        params_str = "&".join(params)
+        return f"trojan://{password}@{server}:{port}?{params_str}#{remark_enc}"
+
+    return None
+
+
 def convert_npvs_config_to_links(parsed):
-    """Convert decrypted .npvs JSON to a list of v2ray:// URIs."""
+    """تبدیل JSON دیکریپت‌شده‌ی NPVS به لیست لینک‌های v2ray.
+    دو فرمت پشتیبانی می‌شود:
+      1) {"configs": [ {v2rayProfile: {...}}, ... ]}
+      2) [ {name, address, type, v2rayProfile: {...}}, ... ]
+    """
     links = []
-    if not isinstance(parsed, dict):
-        return links
-    configs = parsed.get("configs", [])
-    if not isinstance(configs, list):
-        return links
 
-    for cfg in configs:
-        profile = cfg.get("v2rayProfile") or {}
-        ctype = profile.get("configType")
-        server = profile.get("server", "")
-        port = str(profile.get("serverPort", ""))
-        remarks = profile.get("remarks") or cfg.get("name") or "config"
-        if not server or not port:
-            continue
-        remark_enc = urlquote(remarks, safe='')
+    def handle_items(items):
+        for cfg in items:
+            if not isinstance(cfg, dict):
+                continue
+            profile = cfg.get("v2rayProfile") or {}
+            if not profile:
+                continue
+            fallback_name = cfg.get("name") or cfg.get("remarks") or "config"
+            link = convert_npvs_profile_to_link(profile, fallback_name)
+            if link:
+                links.append(link)
 
-        # ---- Shadowsocks ----
-        if ctype == 3:
-            method = profile.get("method", "")
-            password = profile.get("password", "")
-            userinfo = base64.urlsafe_b64encode(
-                f"{method}:{password}".encode()
-            ).decode().rstrip("=")
-            links.append(f"ss://{userinfo}@{server}:{port}#{remark_enc}")
-
-        # ---- Trojan (ws+tls) ----
-        elif ctype == 6:
-            password = profile.get("password", "")
-            network = profile.get("network", "tcp")
-            host = profile.get("host", "")
-            path = profile.get("path", "")
-            sni = profile.get("sni", "")
-            security = profile.get("security", "")
-            alpn = profile.get("alpn", "")
-            fp = profile.get("fingerPrint", "")
-            insecure = profile.get("insecure", False)
-
-            params = []
-            if network:  params.append(f"type={network}")
-            if security: params.append(f"security={security}")
-            if sni:      params.append(f"sni={urlquote(sni, safe='')}")
-            if host:     params.append(f"host={urlquote(host, safe='')}")
-            if path:     params.append(f"path={urlquote(path, safe='')}")
-            if alpn:     params.append(f"alpn={urlquote(alpn, safe='')}")
-            if fp:       params.append(f"fp={fp}")
-            if insecure: params.append("allowInsecure=1")
-            params_str = "&".join(params)
-            links.append(
-                f"trojan://{password}@{server}:{port}?{params_str}#{remark_enc}"
-            )
+    if isinstance(parsed, dict):
+        cfg_list = parsed.get("configs", [])
+        if isinstance(cfg_list, list):
+            handle_items(cfg_list)
+    elif isinstance(parsed, list):
+        handle_items(parsed)
 
     return links
+
+
+def json_has_npvs_shape(parsed):
+    """آیا JSON شکل NPVS دارد؟ (dict با configs یا list با v2rayProfile)"""
+    if isinstance(parsed, dict):
+        return "configs" in parsed and isinstance(parsed.get("configs"), list)
+    if isinstance(parsed, list):
+        return any(isinstance(x, dict) and "v2rayProfile" in x for x in parsed)
+    return False
+
 
 # ==========================================
 # ۵. مدیریت دیتابیس و آمار
@@ -387,7 +456,7 @@ def check_join_callback(call):
         bot.answer_callback_query(call.id, "❌ شما هنوز در تمام کانال‌ها عضو نشده‌اید!", show_alert=True)
 
 # ==========================================
-# ۶. هسته رمزگشایی پایتون (happ/crypt)
+# ۶. هسته رمزگشایی happ/crypt
 # ==========================================
 def shuffle_blocks(text, block_size, order):
     if isinstance(text, str):
@@ -648,8 +717,8 @@ def process_files_logic(messages, chat_id, user):
             except json.JSONDecodeError:
                 parsed_json = extract_json_config(content)
 
-            # ---- اگر فرمت npvs با "configs" بود، به v2ray link تبدیل کن ----
-            if isinstance(parsed_json, dict) and "configs" in parsed_json:
+            # ---- اگر JSON شکل NPVS داشت، به لینک v2ray تبدیل کن ----
+            if parsed_json is not None and json_has_npvs_shape(parsed_json):
                 npvs_links = convert_npvs_config_to_links(parsed_json)
                 all_extracted_links.extend(npvs_links)
 
