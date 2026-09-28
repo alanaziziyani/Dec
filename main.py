@@ -81,6 +81,7 @@ CRYPT5_KEYS = {
     "ypmtavce": "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"
 }
 
+
 # ==========================================
 # ۳. TNL (OpenTunnel) Decryption
 # ==========================================
@@ -195,7 +196,110 @@ def extract_tnl_links(entries: dict) -> list:
     return links
 
 # ==========================================
-# ۴. مدیریت دیتابیس و آمار
+# ۴. Helpers (Markdown escape + JSON extraction + NPVS conversion)
+# ==========================================
+def escape_md(text):
+    """Escape Telegram MarkdownV1 metacharacters (مهم برای یوزرنیم‌های دارای _)."""
+    if not text:
+        return text
+    for ch in ['_', '*', '`', '[', ']']:
+        text = text.replace(ch, '\\' + ch)
+    return text
+
+def extract_json_config(text):
+    """اولین شیء JSON که شامل کلید 'configs' است را از داخل متن استخراج می‌کند."""
+    idx = text.find('"configs"')
+    if idx == -1:
+        return None
+    start = text.rfind('{', 0, idx)
+    if start == -1:
+        return None
+
+    depth = 0
+    in_str = False
+    esc = False
+    for i in range(start, len(text)):
+        c = text[i]
+        if esc:
+            esc = False
+            continue
+        if c == '\\':
+            esc = True
+            continue
+        if c == '"':
+            in_str = not in_str
+            continue
+        if in_str:
+            continue
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                try:
+                    return json.loads(text[start:i+1])
+                except Exception:
+                    return None
+    return None
+
+def convert_npvs_config_to_links(parsed):
+    """Convert decrypted .npvs JSON to a list of v2ray:// URIs."""
+    links = []
+    if not isinstance(parsed, dict):
+        return links
+    configs = parsed.get("configs", [])
+    if not isinstance(configs, list):
+        return links
+
+    for cfg in configs:
+        profile = cfg.get("v2rayProfile") or {}
+        ctype = profile.get("configType")
+        server = profile.get("server", "")
+        port = str(profile.get("serverPort", ""))
+        remarks = profile.get("remarks") or cfg.get("name") or "config"
+        if not server or not port:
+            continue
+        remark_enc = urlquote(remarks, safe='')
+
+        # ---- Shadowsocks ----
+        if ctype == 3:
+            method = profile.get("method", "")
+            password = profile.get("password", "")
+            userinfo = base64.urlsafe_b64encode(
+                f"{method}:{password}".encode()
+            ).decode().rstrip("=")
+            links.append(f"ss://{userinfo}@{server}:{port}#{remark_enc}")
+
+        # ---- Trojan (ws+tls) ----
+        elif ctype == 6:
+            password = profile.get("password", "")
+            network = profile.get("network", "tcp")
+            host = profile.get("host", "")
+            path = profile.get("path", "")
+            sni = profile.get("sni", "")
+            security = profile.get("security", "")
+            alpn = profile.get("alpn", "")
+            fp = profile.get("fingerPrint", "")
+            insecure = profile.get("insecure", False)
+
+            params = []
+            if network:  params.append(f"type={network}")
+            if security: params.append(f"security={security}")
+            if sni:      params.append(f"sni={urlquote(sni, safe='')}")
+            if host:     params.append(f"host={urlquote(host, safe='')}")
+            if path:     params.append(f"path={urlquote(path, safe='')}")
+            if alpn:     params.append(f"alpn={urlquote(alpn, safe='')}")
+            if fp:       params.append(f"fp={fp}")
+            if insecure: params.append("allowInsecure=1")
+            params_str = "&".join(params)
+            links.append(
+                f"trojan://{password}@{server}:{port}?{params_str}#{remark_enc}"
+            )
+
+    return links
+
+# ==========================================
+# ۵. مدیریت دیتابیس و آمار
 # ==========================================
 if not os.path.exists(DB_FILE):
     with open(DB_FILE, "w") as f: json.dump({}, f)
@@ -220,7 +324,7 @@ def notify_owner_new_user(user):
         InlineKeyboardButton("🔴 بن کردن", callback_data=f"fast_ban_{user.id}"),
         InlineKeyboardButton("🟢 آزاد کردن", callback_data=f"fast_unban_{user.id}")
     )
-    username_text = f"@{user.username}" if user.username else "بدون یوزرنیم"
+    username_text = f"@{escape_md(user.username)}" if user.username else "بدون یوزرنیم"
     text = f"🆕 **کاربر جدید وارد ربات شد** 🆕\n\n👤 نام کاربری: {username_text}\n🆔 شناسه: `{user.id}`"
     try:
         bot.send_message(OWNER_ID, text, reply_markup=markup, parse_mode="Markdown")
@@ -283,7 +387,7 @@ def check_join_callback(call):
         bot.answer_callback_query(call.id, "❌ شما هنوز در تمام کانال‌ها عضو نشده‌اید!", show_alert=True)
 
 # ==========================================
-# ۵. هسته رمزگشایی پایتون
+# ۶. هسته رمزگشایی پایتون (happ/crypt)
 # ==========================================
 def shuffle_blocks(text, block_size, order):
     if isinstance(text, str):
@@ -349,7 +453,7 @@ def format_configs_text(extracted_links, tnl_ssh_info=None):
     if tnl_ssh_info:
         for fname, info in tnl_ssh_info:
             if info:
-                parts.append(f"📄 **{fname}**\n{info}")
+                parts.append(f"📄 **{escape_md(fname)}**\n{info}")
 
     if not extracted_links:
         parts.append(
@@ -378,7 +482,7 @@ def format_configs_text(extracted_links, tnl_ssh_info=None):
     return "\n".join(parts)
 
 # ==========================================
-# ۶. هندلرهای ربات
+# ۷. هندلرهای ربات
 # ==========================================
 
 @bot.message_handler(commands=['start'])
@@ -529,17 +633,33 @@ def process_files_logic(messages, chat_id, user):
             with open(final_out_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            links = re.findall(r'((?:vless|vmess|trojan|ss|hysteria2?|tuic)://[^\s"\'<>]+)', content, re.IGNORECASE)
+            # ---- استخراج لینک‌های v2ray از داخل متن (regex) ----
+            links = re.findall(
+                r'((?:vless|vmess|trojan|ss|hysteria2?|tuic)://[^\s"\'<>]+)',
+                content, re.IGNORECASE
+            )
             clean_links = [link.rstrip(',\\]}') for link in links]
             all_extracted_links.extend(clean_links)
 
+            # ---- تلاش برای پارس JSON (شامل .npvs با کامنت) ----
+            parsed_json = None
             try:
                 parsed_json = json.loads(content)
+            except json.JSONDecodeError:
+                parsed_json = extract_json_config(content)
+
+            # ---- اگر فرمت npvs با "configs" بود، به v2ray link تبدیل کن ----
+            if isinstance(parsed_json, dict) and "configs" in parsed_json:
+                npvs_links = convert_npvs_config_to_links(parsed_json)
+                all_extracted_links.extend(npvs_links)
+
+            # ---- ذخیره‌ی JSON در فایل تجمیعی ----
+            if parsed_json is not None:
                 if isinstance(parsed_json, list):
                     combined_json_data.extend(parsed_json)
                 else:
                     combined_json_data.append(parsed_json)
-            except json.JSONDecodeError:
+            else:
                 combined_json_data.append({"raw_content": content})
 
         try:
@@ -556,7 +676,10 @@ def process_files_logic(messages, chat_id, user):
 
     add_decrypt_stat(user.id)
 
-    formatted_message = format_configs_text(all_extracted_links, tnl_ssh_info if tnl_ssh_info else None)
+    formatted_message = format_configs_text(
+        all_extracted_links,
+        tnl_ssh_info if tnl_ssh_info else None
+    )
     if len(formatted_message) > 4000:
         formatted_message = formatted_message[:3900] + "\n\n⚠️ تعداد لینک‌ها بسیار زیاد است. لیست کامل در فایل قرار دارد."
 
@@ -598,7 +721,7 @@ def handle_text(message):
         bot.reply_to(message, "لطفا فایل قفل شده یا لینک happ:// ارسال کنید.")
 
 # ==========================================
-# ۷. مدیریت کال‌بک‌های پنل ادمین
+# ۸. مدیریت کال‌بک‌های پنل ادمین
 # ==========================================
 @bot.callback_query_handler(func=lambda call: call.data.startswith("fast_"))
 def fast_action_callbacks(call):
@@ -656,7 +779,7 @@ def process_user_stats(message):
 
     u_data = users[target_id]
     d_count = u_data.get("decrypt_count", 0)
-    username = f"@{u_data['username']}" if u_data['username'] != "NoID" else "بدون یوزرنیم"
+    username = f"@{escape_md(u_data['username'])}" if u_data['username'] != "NoID" else "بدون یوزرنیم"
 
     text = f"📊 **آمار کاربر:**\n\n👤 یوزرنیم: {username}\n🆔 آیدی: `{target_id}`\n🔓 تعداد دیکریپت موفق: {d_count}\n🚦 وضعیت: {'مسدود' if u_data['status'] == 'blocked' else 'فعال'}"
     bot.reply_to(message, text, parse_mode="Markdown")
