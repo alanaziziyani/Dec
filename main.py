@@ -10,20 +10,20 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from cryptography.hazmat.primitives.serialization import load_der_private_key
+from urllib.parse import quote as urlquote
 
 # ==========================================
 # ۱. پیکربندی اصلی
 # ==========================================
 BOT_TOKEN = "8991507151:AAGM-ObRdzwaiWTCPgcidcTSIaC2GXw_pLg"
 OWNER_ID = 6998163617
-# اضافه شدن \u200E برای چپ‌چین کردن اجباری و \_ برای جلوگیری از ایتالیک شدن در مارک‌داون
 DEV_HANDLE = "\u200E@DR\_A\_88"
 
 DB_FILE = "users.json"
 SETTINGS_FILE = "settings.json"
 bot = telebot.TeleBot(BOT_TOKEN)
 
-SUPPORTED_EXTENSIONS = ['.npvt', '.npvs', '.ehi', '.hat', '.nm', '.dark', '.slip']
+SUPPORTED_EXTENSIONS = ['.npvt', '.npvs', '.ehi', '.hat', '.nm', '.dark', '.slip', '.tnl']
 DEFAULT_NPV_KEY = "3RFV-8EKD-AVC5-ZBXA-GTWW-4BCR-70"
 media_groups = {}
 
@@ -31,20 +31,19 @@ os.makedirs("configs", exist_ok=True)
 os.makedirs("output", exist_ok=True)
 
 # ==========================================
-# ۲. کلیدهای رمزنگاری 
-# (محتوای کامل کلیدها را از سورس اصلی خود جایگذاری کنید)
+# ۲. کلیدهای رمزنگاری
 # ==========================================
 PRIVATE_KEY_B64 = "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"
 
 NATIVE_KEYS = [
-    "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",
+    "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"
 ]
 
 # =========================================================================
-#     Crypt5 Keys (34 different markers)
+#     Crypt5 Keys
 # =========================================================================
 CRYPT5_KEYS = {
     "axrtpjmw": "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",
@@ -80,11 +79,123 @@ CRYPT5_KEYS = {
     "yfqsriuo": "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",
     "yiccwpus": "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",
     "ypmtavce": "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"
-    
-    }
+}
 
 # ==========================================
-# ۳. مدیریت دیتابیس و آمار
+# ۳. TNL (OpenTunnel) Decryption
+# ==========================================
+TNL_KEY = bytes.fromhex(
+    "bd561d5a60918ccde642091edd0f754c"
+    "3346ecf0d609f161811f8c26c130e287"
+)
+
+def _tnl_ror8(x, n):
+    return ((x >> n) | (x << (8 - n))) & 0xFF
+
+def decrypt_tnl_bytes(file_bytes: bytes) -> str:
+    """Decrypt a .tnl file. Returns the plaintext XML string."""
+    s = file_bytes.strip()
+    if s.startswith(b'\xef\xbb\xbf'):
+        s = s[3:]
+    s = b''.join(s.split())
+    s += b'=' * ((4 - len(s) % 4) % 4)
+    try:
+        data = base64.b64decode(s)
+    except Exception:
+        data = base64.urlsafe_b64decode(s)
+
+    if len(data) < 8:
+        raise ValueError("TNL data too short")
+
+    X = int.from_bytes(data[0:4], 'big')
+    length = int.from_bytes(data[4:8], 'big')
+    if 8 + length > len(data):
+        length = len(data) - 8
+
+    body = data[8:8 + length]
+    out = bytearray(length)
+    for i in range(length):
+        sb = (X >> (8 * (i % 4))) & 0xFF
+        v = body[i] ^ ((7 * i + 13) & 0xFF)
+        out[i] = TNL_KEY[i % 32] ^ sb ^ _tnl_ror8(v, 3)
+
+    return out.decode('utf-8', errors='replace')
+
+def parse_tnl_xml(xml_text: str) -> dict:
+    """Parse OpenTunnel <properties> XML into a key->value dict."""
+    entries = {}
+    for m in re.finditer(
+        r'<entry\s+key="([^"]+)"\s*(?:/>|>(.*?)</entry>)',
+        xml_text, re.DOTALL
+    ):
+        entries[m.group(1)] = m.group(2) or ""
+    return entries
+
+def build_tnl_socks_uri(entries: dict) -> str:
+    """از v2rayjson داخل کانفیگ، لینک socks:// نهایی را می‌سازد."""
+    try:
+        v2 = json.loads(entries.get("v2rayjson", "") or "{}")
+    except Exception:
+        return ""
+
+    outbounds = v2.get("outbounds", [])
+    proxy_out = next((o for o in outbounds if o.get("tag") == "proxy"),
+                     outbounds[0] if outbounds else None)
+    if not proxy_out:
+        return ""
+
+    servers = proxy_out.get("settings", {}).get("servers", [])
+    if not servers:
+        return ""
+
+    srv = servers[0]
+    address = srv.get("address", "")
+    port = srv.get("port", 0)
+    network = proxy_out.get("streamSettings", {}).get("network", "tcp")
+    remarks = v2.get("remarks") or entries.get("remarks") or "OpenTunnel"
+
+    tag = urlquote(remarks, safe='')
+    return f"socks://{address}:{port}?type={network}#{tag}"
+
+def format_tnl_info(entries: dict) -> str:
+    """اطلاعات SSH و خلاصه کانفیگ TNL را مرتب می‌کند."""
+    lines = []
+    remarks = entries.get("remarks", "").strip()
+    if remarks:
+        lines.append(f"🏷 **نام:** `{remarks}`")
+
+    ssh_server = entries.get("sshServer", "").strip()
+    if ssh_server:
+        lines.append(f"🌐 **SSH Server:** `{ssh_server}:{entries.get('sshPort','')}`")
+        if entries.get("sshUser"):
+            lines.append(f"👤 **SSH User:** `{entries['sshUser']}`")
+        if entries.get("sshPass"):
+            lines.append(f"🔑 **SSH Pass:** `{entries['sshPass']}`")
+
+    proxy_remote = entries.get("proxyRemote", "").strip()
+    if proxy_remote:
+        lines.append(f"🔀 **Proxy:** `{proxy_remote}:{entries.get('proxyRemotePort','')}`")
+
+    return "\n".join(lines) if lines else ""
+
+def extract_tnl_links(entries: dict) -> list:
+    """لینک‌های قابل استفاده از کانفیگ TNL را جمع می‌کند."""
+    links = []
+    socks_uri = build_tnl_socks_uri(entries)
+    if socks_uri:
+        links.append(socks_uri)
+
+    v2_str = entries.get("v2rayjson", "")
+    if v2_str:
+        more = re.findall(
+            r'((?:vless|vmess|trojan|ss|hysteria2?|tuic)://[^\s"\'<>]+)',
+            v2_str, re.IGNORECASE
+        )
+        links.extend(m.strip().rstrip(',\\]}') for m in more)
+    return links
+
+# ==========================================
+# ۴. مدیریت دیتابیس و آمار
 # ==========================================
 if not os.path.exists(DB_FILE):
     with open(DB_FILE, "w") as f: json.dump({}, f)
@@ -137,7 +248,7 @@ def add_decrypt_stat(user_id):
         users[user_id_str].setdefault("decrypt_count", 0)
         users[user_id_str]["decrypt_count"] += 1
         save_users(users)
-    
+
     settings = load_settings()
     settings.setdefault("total_decrypts", 0)
     settings["total_decrypts"] += 1
@@ -147,8 +258,8 @@ def is_subscribed(user_id):
     if int(user_id) == OWNER_ID: return True
     settings = load_settings()
     channels = settings.get("force_channels", [])
-    if not channels: return True 
-    
+    if not channels: return True
+
     for ch in channels:
         try:
             status = bot.get_chat_member(ch, user_id).status
@@ -172,7 +283,7 @@ def check_join_callback(call):
         bot.answer_callback_query(call.id, "❌ شما هنوز در تمام کانال‌ها عضو نشده‌اید!", show_alert=True)
 
 # ==========================================
-# ۴. هسته رمزگشایی پایتون
+# ۵. هسته رمزگشایی پایتون
 # ==========================================
 def shuffle_blocks(text, block_size, order):
     if isinstance(text, str):
@@ -211,16 +322,16 @@ def decrypt_crypt5_middle(ciphertext: str) -> str:
     shuffled = permute4(inverse_m4831f(ciphertext))
     marker, body = shuffled[:4] + shuffled[-4:], shuffled[4:-4]
     nonce, rest = body[:12], body[12:]
-    
+
     digit_count = 0
     while digit_count < len(rest) and rest[digit_count].isdigit(): digit_count += 1
     segment_len = int(rest[:digit_count])
     packed = rest[digit_count:]
-    
+
     encrypted_segment, rsa_ciphertext = packed[1 : 1 + segment_len], packed[1 + segment_len:]
     rsa_plain = decrypt_rsa(rsa_ciphertext, CRYPT5_KEYS[marker])
     chacha_key = b64_decode_bytes(m4842j(rsa_plain))
-    
+
     return ChaCha20Poly1305(chacha_key).decrypt(nonce.encode('utf-8'), b64_decode_bytes(encrypted_segment), None).decode('utf-8', errors='ignore')
 
 def decrypt_happ_link(link: str) -> str:
@@ -232,28 +343,42 @@ def decrypt_happ_link(link: str) -> str:
     if mode == 4: return b64_decode_bytes(m4842j(decrypt_crypt5_middle(m4831f(payload)))).decode('utf-8', errors='ignore')
     else: return decrypt_rsa(payload, NATIVE_KEYS[mode])
 
-def format_configs_text(extracted_links):
+def format_configs_text(extracted_links, tnl_ssh_info=None):
+    parts = []
+
+    if tnl_ssh_info:
+        for fname, info in tnl_ssh_info:
+            if info:
+                parts.append(f"📄 **{fname}**\n{info}")
+
     if not extracted_links:
-        return "📌 **لینک مستقیمی یافت نشد!**\nاحتمالاً این فایل به صورت کاستوم (JSON خام) ساخته شده است. می‌توانید از فایل JSON ارسال شده در پایین استفاده کنید."
-    
-    # حذف لینک‌های تکراری
-    extracted_links = list(dict.fromkeys(extracted_links))
-    
-    formatted_text = ""
-    for idx, link in enumerate(extracted_links, 1):
-        low_link = link.lower()
-        if low_link.startswith("vless"): protocol, color = "VLESS", "🟦"
-        elif low_link.startswith("vmess"): protocol, color = "VMESS", "🟨"
-        elif low_link.startswith("trojan"): protocol, color = "TROJAN", "🟥"
-        elif low_link.startswith("ss"): protocol, color = "SHADOWSOCKS", "🟪"
-        else: protocol, color = "CONFIG", "🟩"
-        
-        formatted_text += f"{idx:02d} · {color} **{protocol}**\n`{link}`\n\n"
-    
-    return formatted_text
+        parts.append(
+            "📌 **لینک مستقیمی یافت نشد!**\n"
+            "احتمالاً این فایل به صورت کاستوم (JSON خام) ساخته شده است. "
+            "می‌توانید از فایل JSON ارسال شده در پایین استفاده کنید."
+        )
+    else:
+        extracted_links = list(dict.fromkeys(extracted_links))
+        for idx, link in enumerate(extracted_links, 1):
+            low = link.lower()
+            if low.startswith("vless"):
+                proto, color = "VLESS", "🟦"
+            elif low.startswith("vmess"):
+                proto, color = "VMESS", "🟨"
+            elif low.startswith("trojan"):
+                proto, color = "TROJAN", "🟥"
+            elif low.startswith("ss"):
+                proto, color = "SHADOWSOCKS", "🟪"
+            elif low.startswith("socks"):
+                proto, color = "SOCKS", "🟩"
+            else:
+                proto, color = "CONFIG", "🟩"
+            parts.append(f"{idx:02d} · {color} **{proto}**\n`{link}`\n")
+
+    return "\n".join(parts)
 
 # ==========================================
-# ۵. هندلرهای ربات
+# ۶. هندلرهای ربات
 # ==========================================
 
 @bot.message_handler(commands=['start'])
@@ -261,11 +386,11 @@ def send_welcome(message):
     user_data = check_and_register_user(message.from_user)
     if user_data.get('status') == 'blocked':
         return
-        
+
     if not is_subscribed(message.from_user.id):
         bot.reply_to(message, "⛔️ برای استفاده از ربات در کانال‌های زیر عضو شوید:", reply_markup=force_join_markup())
         return
-        
+
     bot.reply_to(message, "👋 **به ربات دیکریپت خوش آمدید!**\n\nلطفا فایل کانفیگ قفل شده (یا چندین فایل به صورت آلبوم) یا لینک `happ://` خود را بفرستید تا برایتان باز کنم.", parse_mode="Markdown")
 
 @bot.message_handler(commands=['admin'])
@@ -299,10 +424,10 @@ def handle_docs(message):
         if group_id not in media_groups:
             media_groups[group_id] = {'messages': [], 'timer': None, 'chat_id': message.chat.id, 'user': message.from_user}
         media_groups[group_id]['messages'].append(message)
-        
+
         if media_groups[group_id]['timer']:
             media_groups[group_id]['timer'].cancel()
-        
+
         timer = Timer(2.0, process_batch_files, args=[group_id])
         media_groups[group_id]['timer'] = timer
         timer.start()
@@ -319,35 +444,64 @@ def process_batch_files(group_id):
 
 def process_files_logic(messages, chat_id, user):
     msg_status = bot.send_message(chat_id, f"⚙️ در حال پردازش {len(messages)} فایل...")
-    
+
     combined_json_data = []
     all_extracted_links = []
+    tnl_ssh_info = []
     success_count = 0
 
     for msg in messages:
         file_name = msg.document.file_name
         file_info = bot.get_file(msg.document.file_id)
         downloaded_file = bot.download_file(file_info.file_path)
-        
+
+        # === TNL special handling (pure Python) ===
+        if file_name.lower().endswith('.tnl'):
+            try:
+                xml_text = decrypt_tnl_bytes(downloaded_file)
+                entries = parse_tnl_xml(xml_text)
+
+                tnl_links = extract_tnl_links(entries)
+                all_extracted_links.extend(tnl_links)
+                tnl_ssh_info.append((file_name, format_tnl_info(entries)))
+
+                try:
+                    v2 = json.loads(entries.get("v2rayjson", "") or "{}")
+                    if v2:
+                        combined_json_data.append(v2)
+                except Exception:
+                    pass
+
+                combined_json_data.append({
+                    "_source": file_name,
+                    "_format": "tnl_xml",
+                    "_entries": entries
+                })
+                success_count += 1
+            except Exception as e:
+                print(f"[TNL] decrypt failed for {file_name}: {e}")
+            continue
+        # === end TNL ===
+
         unique_id = str(msg.message_id)
         in_dir = f"configs_{unique_id}"
         out_dir = f"output_{unique_id}"
         os.makedirs(in_dir, exist_ok=True)
         os.makedirs(out_dir, exist_ok=True)
-        
+
         input_path = os.path.join(in_dir, file_name)
-        with open(input_path, 'wb') as f: 
+        with open(input_path, 'wb') as f:
             f.write(downloaded_file)
-        
+
         keys_to_try = []
         if msg.caption:
             cap = msg.caption.strip()
             if len(cap) < 50 and "\n" not in cap:
                 keys_to_try.append(cap)
-        
+
         keys_to_try.append(DEFAULT_NPV_KEY)
-        keys_to_try.append("") 
-        
+        keys_to_try.append("")
+
         decrypted_successfully = False
         final_out_path = ""
 
@@ -361,25 +515,24 @@ def process_files_logic(messages, chat_id, user):
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL
                 )
-                
+
                 out_files = os.listdir(out_dir)
                 if out_files:
                     decrypted_successfully = True
                     final_out_path = os.path.join(out_dir, out_files[0])
-                    break 
+                    break
             except:
                 pass
-        
+
         if decrypted_successfully and final_out_path:
             success_count += 1
             with open(final_out_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            
-            # نسخه بهینه شده Regex برای پیدا کردن لینک‌هایی که درون کوتیشن یا JSON مخفی شده‌اند
+
             links = re.findall(r'((?:vless|vmess|trojan|ss|hysteria2?|tuic)://[^\s"\'<>]+)', content, re.IGNORECASE)
             clean_links = [link.rstrip(',\\]}') for link in links]
             all_extracted_links.extend(clean_links)
-            
+
             try:
                 parsed_json = json.loads(content)
                 if isinstance(parsed_json, list):
@@ -401,12 +554,12 @@ def process_files_logic(messages, chat_id, user):
         bot.send_message(chat_id, "❌ دیکریپت ناموفق بود! تمامی کلیدها (حتی کلید پیش‌فرض) تست شدند و فایل باز نشد.")
         return
 
-    add_decrypt_stat(user.id) 
-    
-    formatted_message = format_configs_text(all_extracted_links)
+    add_decrypt_stat(user.id)
+
+    formatted_message = format_configs_text(all_extracted_links, tnl_ssh_info if tnl_ssh_info else None)
     if len(formatted_message) > 4000:
         formatted_message = formatted_message[:3900] + "\n\n⚠️ تعداد لینک‌ها بسیار زیاد است. لیست کامل در فایل قرار دارد."
-    
+
     final_msg_text = f"✅ **تعداد {success_count} فایل با موفقیت باز شد!**\n\n{formatted_message}\n\n💎 {DEV_HANDLE}"
     bot.send_message(chat_id, final_msg_text, parse_mode="Markdown")
 
@@ -414,10 +567,10 @@ def process_files_logic(messages, chat_id, user):
         final_json_path = f"Combined_Configs_{user.id}.json"
         with open(final_json_path, 'w', encoding='utf-8') as f:
             json.dump(combined_json_data, f, indent=4, ensure_ascii=False)
-        
+
         with open(final_json_path, 'rb') as doc:
             bot.send_document(chat_id, doc, caption="📂 فایل تجمیع‌شده‌ی تمامی کانفیگ‌ها (JSON)")
-        
+
         if os.path.exists(final_json_path):
             os.remove(final_json_path)
 
@@ -434,25 +587,25 @@ def handle_text(message):
 
     if text.startswith("happ://"):
         msg = bot.reply_to(message, "🔓 در حال استخراج کانفیگ از لینک...")
-        try: 
+        try:
             decrypted_data = decrypt_happ_link(text)
             bot.edit_message_text(f"✅ **نتیجه دیکریپت:**\n\n`{decrypted_data}`\n\n💎 {DEV_HANDLE}", chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
             add_decrypt_stat(message.from_user.id)
-            
-        except Exception as e: 
+
+        except Exception as e:
             bot.edit_message_text(f"❌ خطا در باز کردن لینک: {e}", chat_id=message.chat.id, message_id=msg.message_id)
     else:
         bot.reply_to(message, "لطفا فایل قفل شده یا لینک happ:// ارسال کنید.")
 
 # ==========================================
-# ۶. مدیریت کال‌بک‌های پنل ادمین
+# ۷. مدیریت کال‌بک‌های پنل ادمین
 # ==========================================
 @bot.callback_query_handler(func=lambda call: call.data.startswith("fast_"))
 def fast_action_callbacks(call):
     action = call.data.split("_")[1]
     target_id = call.data.split("_")[2]
     users = load_users()
-    
+
     if target_id in users:
         if action == "ban":
             users[target_id]['status'] = 'blocked'
@@ -461,7 +614,7 @@ def fast_action_callbacks(call):
             users[target_id]['status'] = 'active'
             bot.answer_callback_query(call.id, "🟢 کاربر آزاد شد.", show_alert=True)
         save_users(users)
-        
+
         status_emoji = "🔴 مسدود شده" if users[target_id]['status'] == 'blocked' else "🟢 فعال"
         bot.edit_message_text(f"{call.message.text}\n\nوضعیت فعلی: {status_emoji}", chat_id=call.message.chat.id, message_id=call.message.message_id)
 
@@ -474,7 +627,7 @@ def admin_callbacks(call):
         total_d = settings.get("total_decrypts", 0)
         bot.send_message(call.message.chat.id, f"👥 کل کاربران: {len(users)}\n🔓 مجموع دیکریپت‌های ربات: {total_d}")
         return
-        
+
     if action == "admin_user_stats":
         msg = bot.send_message(call.message.chat.id, "📊 آیدی عددی کاربر (ID) را برای مشاهده آمار ارسال کنید:")
         bot.register_next_step_handler(msg, process_user_stats)
@@ -489,7 +642,7 @@ def admin_callbacks(call):
     elif action == "admin_set_channels":
         msg = bot.send_message(call.message.chat.id, "⚙️ آیدی چنل‌های جدید را با `@` وارد کنید (با فاصله از هم جدا کنید):\n(برای لغو تمام قفل‌ها، کلمه `none` را بفرستید)")
         bot.register_next_step_handler(msg, process_set_channels)
-    
+
     elif action in ["admin_set_user", "admin_toggle_block"]:
         msg = bot.send_message(call.message.chat.id, "👇 آیدی عددی کاربر (ID) را ارسال کنید:")
         bot.register_next_step_handler(msg, process_role_action, action)
@@ -497,14 +650,14 @@ def admin_callbacks(call):
 def process_user_stats(message):
     target_id = message.text.strip()
     users = load_users()
-    if target_id not in users: 
+    if target_id not in users:
         bot.reply_to(message, "❌ کاربری با این آیدی در دیتابیس یافت نشد.")
         return
-    
+
     u_data = users[target_id]
     d_count = u_data.get("decrypt_count", 0)
     username = f"@{u_data['username']}" if u_data['username'] != "NoID" else "بدون یوزرنیم"
-    
+
     text = f"📊 **آمار کاربر:**\n\n👤 یوزرنیم: {username}\n🆔 آیدی: `{target_id}`\n🔓 تعداد دیکریپت موفق: {d_count}\n🚦 وضعیت: {'مسدود' if u_data['status'] == 'blocked' else 'فعال'}"
     bot.reply_to(message, text, parse_mode="Markdown")
 
@@ -512,23 +665,23 @@ def process_role_action(message, action):
     target_id = message.text.strip()
     users = load_users()
     if target_id not in users: return bot.reply_to(message, "❌ یافت نشد.")
-    
+
     if action == "admin_set_user": users[target_id]['role'] = 'user'
     elif action == "admin_toggle_block": users[target_id]['status'] = 'blocked' if users[target_id]['status'] == 'active' else 'active'
-    
+
     save_users(users)
     bot.reply_to(message, f"✅ عملیات با موفقیت روی کاربر {target_id} انجام شد.")
 
 def process_set_channels(message):
     text = message.text.strip()
     settings = load_settings()
-    if text.lower() == "none": 
+    if text.lower() == "none":
         settings["force_channels"] = []
-    else: 
+    else:
         settings["force_channels"] = [ch for ch in text.split() if ch.startswith("@")]
-    
+
     save_settings(settings)
-    
+
     if not settings["force_channels"]:
         bot.reply_to(message, "✅ قفل جوین اجباری به طور کامل غیرفعال شد.")
     else:
