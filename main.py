@@ -1,5 +1,6 @@
 # main.py
 import base64
+import io
 import os
 import json
 import subprocess
@@ -19,10 +20,15 @@ from zsx_decrypt import (
     ZsxPasswordWrong, ZsxError,
 )
 
+from arasc_decrypt import (
+    decrypt_arasc, peek_arasc, extract_arasc_links, summarize_payload,
+    ArascError, ArascNotArasc, ArascUnsupportedVersion,
+    ArascPasswordRequired, ArascPasswordWrong, ArascCorrupted, ArascEmpty,
+)
+
 # ==========================================
 # ۰. مسیر داده پایدار (برای Railway)
 # ==========================================
-# اولویت: DATA_DIR > RAILWAY_VOLUME_MOUNT_PATH > ./
 DATA_DIR = (
     os.environ.get("DATA_DIR")
     or os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
@@ -47,20 +53,24 @@ bot = telebot.TeleBot(BOT_TOKEN)
 
 SUPPORTED_EXTENSIONS = [
     '.npvt', '.npvs', '.ehi', '.hat', '.nm', '.dark', '.slip', '.tnl', '.zsx',
+    '.arasc',
 ]
 DEFAULT_NPV_KEY = "3RFV-8EKD-AVC5-ZBXA-GTWW-4BCR-70"
 media_groups = {}
 
 # state نگه‌داری برای پسورد ZSX
-# { user_id: {"file_bytes": bytes, "file_name": str, "chat_id": int, "message_id": int, "tried": set()} }
 zsx_pending = {}
+
+# state نگه‌داری برای پسورد ARASC
+arasc_pending = {}
 
 os.makedirs("configs", exist_ok=True)
 os.makedirs("output", exist_ok=True)
 
 # ==========================================
-# ۲. کلیدهای رمزنگاری
+# ۲. کلیدهای رمزنگاری happ
 # ==========================================
+
 PRIVATE_KEY_B64 = "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"
 
 NATIVE_KEYS = [
@@ -105,6 +115,7 @@ CRYPT5_KEYS = {
     "yiccwpus": "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",
     "ypmtavce": "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"
 }
+
 
 
 # ==========================================
@@ -582,23 +593,19 @@ def collect_password_candidates(message):
             seen.add(x)
             cands.append(x)
 
-    # کپشن خود پیام
     cap = (message.caption or "").strip()
     p = guess_password_from_text(cap) if cap else None
     if p: add(p)
 
-    # متن خود پیام (اگر فوروارد شده یا یوزر رمز را داخل متن نوشته)
     txt = (message.text or "").strip()
     p = guess_password_from_text(txt) if txt else None
     if p: add(p)
 
-    # forward_origin (نسخه‌های جدید PTB)
     try:
         origin = getattr(message, "forward_origin", None)
         if origin is not None:
-            # Chat / User / HiddenUser
             name = getattr(origin, "sender_user_name", None)
-            if name: add(name)  # معمولاً اسم، نه رمز
+            if name: add(name)
     except Exception:
         pass
 
@@ -606,11 +613,10 @@ def collect_password_candidates(message):
 
 
 def try_decrypt_zsx_with_candidates(data: bytes, candidates):
-    """اولین پسوردی که جواب داد رو برمی‌گردونه. در غیر این صورت exception می‌ده."""
     meta = None
     last_err = None
 
-    for pwd in candidates + [None]:  # None یعنی حالت بدون پسورد
+    for pwd in candidates + [None]:
         try:
             plain = decrypt_zsx(data, pwd)
             return plain, pwd, meta or peek_zsx(data)
@@ -621,17 +627,14 @@ def try_decrypt_zsx_with_candidates(data: bytes, candidates):
             last_err = e
             continue
         except (ZsxLegacyError, ZsxExpiredError, ZsxError) as e:
-            # خطای غیر مرتبط با پسورد → همین‌جا بسه
             raise
 
-    # اگر به اینجا رسید، پسورد اشتباه/نداشته
     if last_err:
         raise last_err
     raise ZsxError("decryption failed")
 
 
 def request_zsx_password(message, file_bytes: bytes, file_name: str, tried=None):
-    """فایل رو در state نگه‌می‌داره و از کاربر پسورد می‌خواد."""
     uid = message.from_user.id
     zsx_pending[uid] = {
         "file_bytes": file_bytes,
@@ -695,15 +698,92 @@ def zsx_password_step(message):
 
 
 # ==========================================
+# ۷.۵. ARASC helpers (password prompt)
+# ==========================================
+def request_arasc_password(message, file_bytes: bytes, file_name: str, tried=None):
+    """فایل arasc رو نگه‌می‌داره و از کاربر پسورد می‌خواد."""
+    uid = message.from_user.id
+    arasc_pending[uid] = {
+        "file_bytes": file_bytes,
+        "file_name": file_name,
+        "chat_id": message.chat.id,
+        "tried": set(tried or []),
+    }
+    sent = bot.reply_to(
+        message,
+        "🔒 این فایل `.arasc` رمزداره.\n"
+        "پسورد رو بفرست (فقط خود توکن، بدون توضیح اضافه):",
+        parse_mode="Markdown"
+    )
+    bot.register_next_step_handler(sent, arasc_password_step)
+
+
+def arasc_password_step(message):
+    uid = message.from_user.id
+    state = arasc_pending.get(uid)
+    if not state:
+        return
+    pwd = (message.text or "").strip()
+    if not pwd:
+        bot.reply_to(message, "❌ پسورد خالیه. دوباره بفرست یا /cancel بزن.")
+        bot.register_next_step_handler(message, arasc_password_step)
+        return
+    if pwd.lower() in ("/cancel", "cancel", "لغو"):
+        arasc_pending.pop(uid, None)
+        bot.reply_to(message, "🚫 لغو شد.")
+        return
+
+    try:
+        plaintext = decrypt_arasc(state["file_bytes"], pwd)
+    except ArascPasswordWrong:
+        bot.reply_to(message, "❌ پسورد اشتباهه. دوباره امتحان کن یا /cancel بزن.")
+        bot.register_next_step_handler(message, arasc_password_step)
+        return
+    except ArascError as e:
+        arasc_pending.pop(uid, None)
+        bot.reply_to(message, f"❌ خطا در رمزگشایی: {escape_md(str(e))}", parse_mode="Markdown")
+        return
+
+    arasc_pending.pop(uid, None)
+    add_decrypt_stat(uid)
+
+    try:
+        payload = json.loads(plaintext.decode("utf-8"))
+    except Exception as e:
+        bot.reply_to(message, f"❌ JSON نامعتبر: {escape_md(str(e))}", parse_mode="Markdown")
+        return
+
+    links = extract_arasc_links(payload)
+    header = f"✅ **{escape_md(state['file_name'])}** باز شد!\n"
+    if links:
+        body = format_configs_text(links)
+    else:
+        body = "📌 " + escape_md(summarize_payload(payload))
+
+    text = f"{header}\n{body}\n\n💎 {DEV_HANDLE}"
+    if len(text) > 4000:
+        text = text[:3900] + "\n... (کوتاه شد)"
+    bot.reply_to(message, text, parse_mode="Markdown")
+
+    # فایل JSON کامل
+    try:
+        buf = io.BytesIO(plaintext if isinstance(plaintext, bytes) else plaintext.encode())
+        buf.name = state["file_name"].rsplit(".", 1)[0] + ".json"
+        bot.send_document(message.chat.id, buf, caption="📂 JSON کامل بعد از رمزگشایی")
+    except Exception:
+        pass
+
+
+# ==========================================
 # ۸. خوش‌آمد
 # ==========================================
 WELCOME_TEXT = (
     "👋 **به ربات دیکریپت خوش آمدید!**\n\n"
     "📁 **فایل‌های پشتیبانی‌شده:**\n"
-    "`.npvt`  `.npvs`  `.ehi`  `.hat`  `.nm`  `.dark`  `.slip`  `.tnl`  `.zsx`\n\n"
+    "`.npvt`  `.npvs`  `.ehi`  `.hat`  `.nm`  `.dark`  `.slip`  `.tnl`  `.zsx`  `.arasc`\n\n"
     "🔗 **لینک‌های متنی پشتیبانی‌شده:**\n"
     "`happ://crypt/`  `happ://crypt2/`  `happ://crypt3/`  `happ://crypt4/`  `happ://crypt5/`\n\n"
-    "🔐 **درباره فایل‌های `.zsx`:**\n"
+    "🔐 **درباره فایل‌های `.zsx` و `.arasc`:**\n"
     "اگر فایل رمزدار باشه، رمز رو از کپشن یا متن فوروارد خودکار پیدا می‌کنم؛ "
     "وگرنه ازت می‌پرسم.\n\n"
     "👇 فایل یا لینکت رو بفرست."
@@ -796,12 +876,10 @@ def process_files_logic(messages, chat_id, user):
         if file_name.lower().endswith('.zsx'):
             candidates = collect_password_candidates(msg)
 
-            # حالت ۱: بدون پسورد
             try:
                 plain = decrypt_zsx(downloaded_file, None)
                 pwd_used = None
             except ZsxPasswordRequired:
-                # حالت ۲: پسورد داره؛ از کاندیدها امتحان کن
                 plain = None
                 pwd_used = None
                 for pwd in candidates:
@@ -815,13 +893,12 @@ def process_files_logic(messages, chat_id, user):
                         continue
 
                 if plain is None:
-                    # نتونستیم → از کاربر بپرس
                     try:
                         bot.delete_message(chat_id, msg_status.message_id)
                     except Exception:
                         pass
                     request_zsx_password(msg, downloaded_file, file_name, tried=candidates)
-                    return  # خروج از این batch؛ منتظر پسورد کاربر
+                    return
             except ZsxExpiredError:
                 bot.send_message(chat_id, f"⌛ `{escape_md(file_name)}` منقضی شده است.", parse_mode="Markdown")
                 continue
@@ -878,6 +955,83 @@ def process_files_logic(messages, chat_id, user):
                 print(f"[TNL] decrypt failed for {file_name}: {e}")
             continue
         # ==== /TNL ====
+
+        # ==== ARASC ====
+        if file_name.lower().endswith('.arasc'):
+            try:
+                header_info = peek_arasc(downloaded_file)
+            except (ArascNotArasc, ArascUnsupportedVersion) as e:
+                bot.send_message(
+                    chat_id,
+                    f"❌ `{escape_md(file_name)}` → {escape_md(str(e))}",
+                    parse_mode="Markdown"
+                )
+                continue
+            except Exception as e:
+                bot.send_message(
+                    chat_id,
+                    f"❌ `{escape_md(file_name)}` خوانده نشد: {escape_md(str(e))}",
+                    parse_mode="Markdown"
+                )
+                continue
+
+            pwd_used = None
+            plaintext = None
+
+            if not header_info["password_protected"]:
+                # حالت بدون پسورد
+                try:
+                    plaintext = decrypt_arasc(downloaded_file, None)
+                except ArascError as e:
+                    bot.send_message(
+                        chat_id,
+                        f"❌ `{escape_md(file_name)}` → {escape_md(str(e))}",
+                        parse_mode="Markdown"
+                    )
+                    continue
+            else:
+                # فایل پسورد داره؛ اول کاندیدها
+                candidates = collect_password_candidates(msg)
+                for pwd in candidates:
+                    try:
+                        plaintext = decrypt_arasc(downloaded_file, pwd)
+                        pwd_used = pwd
+                        break
+                    except ArascPasswordWrong:
+                        continue
+                    except ArascError:
+                        continue
+
+                if plaintext is None:
+                    try:
+                        bot.delete_message(chat_id, msg_status.message_id)
+                    except Exception:
+                        pass
+                    request_arasc_password(msg, downloaded_file, file_name, tried=candidates)
+                    return
+
+            try:
+                payload = json.loads(plaintext.decode("utf-8"))
+            except Exception as e:
+                bot.send_message(
+                    chat_id,
+                    f"❌ `{escape_md(file_name)}` JSON نامعتبر: {escape_md(str(e))}",
+                    parse_mode="Markdown"
+                )
+                continue
+
+            arasc_links = extract_arasc_links(payload)
+            all_extracted_links.extend(arasc_links)
+            combined_json_data.append({
+                "_source": file_name,
+                "_format": "arasc",
+                "_password_used": bool(pwd_used),
+                "_summary": summarize_payload(payload),
+                "payload": payload,
+            })
+            success_count += 1
+            continue
+        # ==== /ARASC ====
 
         unique_id = str(msg.message_id)
         in_dir = f"configs_{unique_id}"
@@ -1048,7 +1202,6 @@ def handle_text(message):
             bot.edit_message_text(f"❌ خطا در باز کردن لینک: {e}", chat_id=message.chat.id, message_id=msg.message_id)
         return
 
-    # اگر کاربر منتظر ارسال پسورد ZSX است، هندلر قبلی (register_next_step) عمل می‌کنه.
     bot.reply_to(message, "لطفاً فایل قفل شده یا لینک happ:// ارسال کنید.")
 
 
